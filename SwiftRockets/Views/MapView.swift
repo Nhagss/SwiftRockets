@@ -12,10 +12,17 @@ struct MapView: View {
                 if let item = location {
                     Marker(item.name ?? "Selected Location", coordinate: item.location.coordinate)
                 }
-                
             }
-            
+            VStack {
+                Spacer()
+                PrimaryButton("Continuar",
+                              colors: (location != nil) ? [.yellowGradient, .orangeGradient] : [.whiteGradient, .blueGradient]) {}
+                    .frame(width: 353, height: 57)
+                    .padding(.bottom, 50)
+            }
         }
+        .ignoresSafeArea()
+        .background(Color.clear)
         .ignoresSafeArea()
         
         .onChange(of: location, initial: false) { newValue, _ in

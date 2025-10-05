@@ -13,35 +13,38 @@ struct MapSearchView: View {
     @State var locationQueryResults: [MKMapItem] = []
     @Binding var location: MKMapItem?
     var body: some View {
-        List {
-            ForEach(locationQueryResults.indices, id: \.self) { index in
-                let item = locationQueryResults[index]
-                VStack(alignment: .leading, spacing: 2) {
-                    Text(item.name ?? "Unknown location")
-                        .font(.headline)
-                    if let subtitle = item.address?.fullAddress {
-                        Text(subtitle)
-                            .font(.subheadline)
-                            .foregroundStyle(.secondary)
+        ZStack{
+            MapView(location: $location)
+            List {
+                ForEach(locationQueryResults.indices, id: \.self) { index in
+                    let item = locationQueryResults[index]
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text(item.name ?? "Unknown location")
+                            .font(.headline)
+                        if let subtitle = item.address?.fullAddress {
+                            Text(subtitle)
+                                .font(.subheadline)
+                                .foregroundStyle(.secondary)
+                        }
+                    }
+                    .contentShape(Rectangle())
+                    .onTapGesture {
+                        location = item
                     }
                 }
-                .contentShape(Rectangle())
-                .onTapGesture {
-                    location = item
+            }
+            .searchable(text: $searchQuery, placement: .automatic, prompt: "Search a place")
+            .onChange(of: searchQuery, initial: false) { newValue, _ in
+                Task {
+                    let items = await searchPlaces(query: newValue)
+                    await MainActor.run {
+                        locationQueryResults = items
+                    }
+                    print("Results count: \(locationQueryResults.count)")
                 }
             }
-        }
-        .searchable(text: $searchQuery, placement: .automatic, prompt: "Search a place")
-        .onChange(of: searchQuery, initial: false) { newValue, _ in
-            Task {
-                let items = await searchPlaces(query: newValue)
-                await MainActor.run {
-                    locationQueryResults = items
-                }
-                print("Results count: \(locationQueryResults.count)")
-            }
-        }
             
+        }
     }
 }
 
