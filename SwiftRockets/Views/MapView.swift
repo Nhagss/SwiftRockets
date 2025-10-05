@@ -12,9 +12,12 @@ struct MapView: View {
                 if let item = location {
                     Marker(item.name ?? "Selected Location", coordinate: item.location.coordinate)
                 }
+                
             }
+            
         }
         .ignoresSafeArea()
+        
         .onChange(of: location, initial: false) { newValue, _ in
             guard let coord = newValue?.location.coordinate else { return }
             withAnimation(.easeInOut) {
@@ -22,6 +25,7 @@ struct MapView: View {
                                                             span: MKCoordinateSpan(latitudeDelta: 0.05, longitudeDelta: 0.05)))
             }
         }
+        
         .onAppear {
             if let coord = location?.location.coordinate {
                 cameraPosition = .region(MKCoordinateRegion(center: coord,
